@@ -1,6 +1,8 @@
+import { useState } from "react";
+
 export default function App() {
   return (
-    <div className="h-screen bg-indigo-950 text-white">
+    <div className="h-screen bg-indigo-950 text-white flex flex-col justify-between">
       <Header />
       <Main />
       <Footer />
@@ -11,24 +13,77 @@ export default function App() {
 function Header() {
   return (
     <div>
-      <div>
-        <h1>ToDo List</h1>
+      <div className="flex justify-around p-4 pb-1 font-primery text-[2rem]">
+        <div>
+          <h1>ToDo List</h1>
+        </div>
+
+        <div>
+          <h3>Your Daily Manager</h3>
+        </div>
       </div>
 
-      <div>
-        <h3>Your Daily Manager</h3>
-      </div>
+      <div className="h-[1px] bg-blue-900 rounded-lg m-4 mt-0"></div>
     </div>
   );
 }
 
 function Main() {
+  const [taskInput, setTasksInput] = useState("");
+  const [task, setTask] = useState([]);
+
+  const handleNewTask = (newTask) => {
+    setTask((prevTask) => [...prevTask, { ...newTask, id: Date.now() }]);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const taskData = {
+      title: taskInput,
+    };
+    handleNewTask(taskData);
+    setTasksInput("");
+  };
+  return (
+    <div className="flex flex-col items-center justify-center font-primery">
+      <form className="flex gap-2" onSubmit={handleSubmit}>
+        <input
+          className="border p-1 rounded-sm border-blue-200 border-2 w-[25rem] text-[14px]"
+          type="text"
+          placeholder="Enter your task here . . ."
+          value={taskInput}
+          onChange={(e) => setTasksInput(e.target.value)}
+        />
+        <button
+          className="bg-green-600 rounded-sm p-1 w-30 font-primery cursor-pointer"
+          type="submit"
+        >
+          Add
+        </button>
+      </form>
+
+      {task.length === 0 ? (
+        <div className="flex flex-col items-center">
+          <img
+            className="w-[25rem]"
+            src="/emptyillustrator.png"
+            alt="no task items"
+          />
+          <h2 className="text-[1.5rem]">No task has been added yet.</h2>
+        </div>
+      ) : (
+        <TaskLists task={task} />
+      )}
+    </div>
+  );
+}
+
+function TaskLists({ task }) {
   return (
     <div>
-      <form>
-        <input className="border" type="text" placeholder="Enter your task here . . ." />
-        <button>Add</button>
-      </form>
+      {task.map((t) => (
+        <div>{t.title} </div>
+      ))}
     </div>
   );
 }
