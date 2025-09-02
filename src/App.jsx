@@ -3,8 +3,10 @@ import { useState } from "react";
 export default function App() {
   return (
     <div className="h-screen bg-indigo-950 text-white flex flex-col justify-between">
-      <Header />
-      <Main />
+      <div>
+        <Header />
+        <Main />
+      </div>
       <Footer />
     </div>
   );
@@ -33,7 +35,22 @@ function Main() {
   const [task, setTask] = useState([]);
 
   const handleNewTask = (newTask) => {
-    setTask((prevTask) => [...prevTask, { ...newTask, id: Date.now() }]);
+    setTask((prevTask) => [
+      ...prevTask,
+      { ...newTask, id: Date.now(), completed: false },
+    ]);
+  };
+
+  const handleToggleComplete = (id) => {
+    setTask((preveTasks) =>
+      preveTasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const handleDeleteTask = (id) => {
+    setTask((preveTask) => preveTask.filter((task) => task.id !== id));
   };
 
   const handleSubmit = (e) => {
@@ -72,18 +89,52 @@ function Main() {
           <h2 className="text-[1.5rem]">No task has been added yet.</h2>
         </div>
       ) : (
-        <TaskLists task={task} />
+        <TaskLists
+          task={task}
+          onToggleComplete={handleToggleComplete}
+          onDelete={handleDeleteTask}
+        />
       )}
     </div>
   );
 }
 
-function TaskLists({ task }) {
+function TaskLists({ task, onToggleComplete, onDelete }) {
   return (
-    <div>
+    <div className="">
       {task.map((t) => (
-        <div>{t.title} </div>
+        <TaskItem
+          key={t.id}
+          task={t}
+          onToggleComplete={onToggleComplete}
+          onDelete={onDelete}
+        />
       ))}
+    </div>
+  );
+}
+
+function TaskItem({ task, onToggleComplete, onDelete }) {
+  return (
+    <div className="mt-4">
+      <ul className="flex flex-col gap-1">
+        <li className="flex justify-between min-w-[25rem] gap-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={task.completed}
+              onChange={() => onToggleComplete(task.id)}
+            />
+            <p className={task.completed ? "line-through text-gray-400" : ""}>
+              {task.title}
+            </p>
+          </div>
+          <button className="cursor-pointer" onClick={() => onDelete(task.id)}>
+            <img className="w-4" src="/delete.png" alt="delete icon" />
+          </button>
+        </li>
+        <div className="h-[1px] bg-blue-400 rounded-lg "></div>
+      </ul>
     </div>
   );
 }
